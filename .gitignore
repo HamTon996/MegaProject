@@ -1,3 +1,39 @@
-# Godot 4+ specific ignores
+# Godot 4 generated files
 .godot/
+.import/
 /android/
+*.translation
+*.tmp
+
+# Godot export artifacts
+export_presets.cfg
+*.apk
+*.aab
+*.ipa
+*.pck
+*.zip
+
+# Build artifacts
+build/
+dist/
+
+# Windows
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docview
+nbproject/
+.vs/
+
+# macOS (if collaborating cross-platform)
+.DS_Store
+.AppleDouble
+.LSOverride

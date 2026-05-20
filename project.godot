@@ -10,7 +10,9 @@ config_version=5
 
 [application]
 
-config/name="GunzBlaze-2 New Game Project"
+config/name="MOMENTUM"
+config/description="Third-person 3D action game built in Godot 4.x"
+config/run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -20,4 +22,5 @@ config/icon="res://icon.svg"
 
 [rendering]
 
+renderer/rendering_method="forward_plus"
 rendering_device/driver.windows="d3d12"
