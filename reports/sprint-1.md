@@ -33,8 +33,8 @@ NEW   reports/sprint-1.md
 ```
 Player (CharacterBody3D)  ← player_controller.gd
 └── YawPivot (Node3D)     ← player_camera.gd  — rotation.y = mouse X
-    └── PitchPivot (Node3D, pos=(0,1.5,0))    — rotation.x = mouse Y (clamped)
-        └── Camera3D (pos=(0,0,3))            — 3m behind player, centered
+	└── PitchPivot (Node3D, pos=(0,1.5,0))    — rotation.x = mouse Y (clamped)
+		└── Camera3D (pos=(0,0,3))            — 3m behind player, centered
 ```
 
 Camera at world offset (0, 1.5, 3) from player. Default Camera3D rotation looks along –Z, which at that offset naturally centers the player's torso in frame. No SpringArm3D yet — camera can clip walls. SpringArm3D to be added in Sprint 2 or Sprint 9 tuning pass.

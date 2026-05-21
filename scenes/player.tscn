@@ -1,7 +1,7 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://d3jxrbinsxa32"]
 
-[ext_resource type="Script" path="res://scripts/player_controller.gd" id="1_ctrl"]
-[ext_resource type="Script" path="res://scripts/player_camera.gd" id="2_cam"]
+[ext_resource type="Script" uid="uid://bgx4dxly5shd" path="res://scripts/player_controller.gd" id="1_ctrl"]
+[ext_resource type="Script" uid="uid://b6axpmxbhm0sl" path="res://scripts/player_camera.gd" id="2_cam"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.4
@@ -11,22 +11,22 @@ height = 1.8
 radius = 0.4
 height = 1.8
 
-[node name="Player" type="CharacterBody3D"]
+[node name="Player" type="CharacterBody3D" unique_id=833232181]
 script = ExtResource("1_ctrl")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1426153479]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_1")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1438612717]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 mesh = SubResource("CapsuleMesh_1")
 
-[node name="YawPivot" type="Node3D" parent="."]
+[node name="YawPivot" type="Node3D" parent="." unique_id=1477281062]
 script = ExtResource("2_cam")
 
-[node name="PitchPivot" type="Node3D" parent="YawPivot"]
+[node name="PitchPivot" type="Node3D" parent="YawPivot" unique_id=1881852839]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 
-[node name="Camera3D" type="Camera3D" parent="YawPivot/PitchPivot"]
+[node name="Camera3D" type="Camera3D" parent="YawPivot/PitchPivot" unique_id=1644982447]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)

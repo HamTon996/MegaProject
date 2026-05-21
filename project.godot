@@ -12,9 +12,10 @@ config_version=5
 
 config/name="MOMENTUM"
 config/description="Third-person 3D action game built in Godot 4.x"
-config/run/main_scene="res://scenes/main.tscn"
+run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
+config/run/main_scene="res://scenes/main.tscn"
 
 [physics]
 
@@ -22,5 +23,4 @@ config/icon="res://icon.svg"
 
 [rendering]
 
-renderer/rendering_method="forward_plus"
 rendering_device/driver.windows="d3d12"
