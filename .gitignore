@@ -4,6 +4,7 @@
 /android/
 *.translation
 *.tmp
+*.uid
 
 # Godot export artifacts
 export_presets.cfg
