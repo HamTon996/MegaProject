@@ -17,7 +17,7 @@ const WALL_EXIT_SPEED           := 2.0    # m/s — fall off wall below this hor
 const WALL_RUN_MAX_TIME         := 2.5    # s   — hard cap per D-017
 const WALL_RAY_LENGTH           := 0.65   # m   — capsule radius 0.4 + 0.25 clearance
 const WALL_RUN_REATTACH_DELAY   := 0.1    # s   — min airborne time before wall-run can trigger
-const WALL_FRICTION             := 3.5    # m/s^2 — horizontal speed bleed while wall-running
+const WALL_FRICTION             := 2.2    # m/s^2 — horizontal speed bleed while wall-running (hybrid-tuned for 2.5s timer)
 
 # --- State ---
 enum State { GROUND, AIR, WALL_RUN }

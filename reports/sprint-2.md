@@ -183,3 +183,12 @@ Branch `sprint-2-wall-run` is local only — NOT pushed to remote. Awaiting CEO 
 - Current branch: `sprint-2-wall-run`
 - `main`: unchanged from `baa8cc7`
 - Not merged. Not pushed.
+
+---
+
+## Amendment — Friction tuning (post-review)
+
+- Date: 2026-05-29
+- WALL_FRICTION changed from 3.5 to 2.2 per CEO instruction.
+- Rationale: at 3.5, the momentum gate dominated and the 2.5s timer rarely fired, contradicting locked decision D-017 (hybrid). At 2.2: sprint entry (~9 m/s) rides full 2.5s before timer cuts; walk entry (~5 m/s) drops at ~2.3s from momentum. Both halves of D-017 are now observable.
+- Only constant changed. GROUND/AIR/WALL_RUN logic unchanged.
