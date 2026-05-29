@@ -192,3 +192,14 @@ Branch `sprint-2-wall-run` is local only — NOT pushed to remote. Awaiting CEO 
 - WALL_FRICTION changed from 3.5 to 2.2 per CEO instruction.
 - Rationale: at 3.5, the momentum gate dominated and the 2.5s timer rarely fired, contradicting locked decision D-017 (hybrid). At 2.2: sprint entry (~9 m/s) rides full 2.5s before timer cuts; walk entry (~5 m/s) drops at ~2.3s from momentum. Both halves of D-017 are now observable.
 - Only constant changed. GROUND/AIR/WALL_RUN logic unchanged.
+
+---
+
+## Amendment — Sprint 2.1+2.2 feel pass (combined, post-playtest)
+
+- Date: 2026-05-29
+- Note: Sprint 2.1 was never applied to this branch (session interrupted after editor-housekeeping commit). Sprint 2.2 was applied as a combined 2.1+2.2 pass in one commit, with explicit CEO approval.
+- Fix 1 (sprint-backwards gate): `_selected_speed()` helper added. Sprint denied when input has no forward camera-relative component. Called in both `_physics_ground()` and `_physics_air()` in place of the old `RUN_SPEED if Input.is_key_pressed(KEY_SHIFT)` pattern.
+- Fix 2 (forgiving wall detection): WALL_RAY_LENGTH 0.65 -> 1.0; added WALL_COYOTE_TIME = 0.10s; coyote cache (`_last_wall_seen_time`, `_coyote_wall_normal`, `_coyote_wall_side_left`) updated each AIR frame via `_update_coyote_wall_cache()`; initiation falls back to cache when rays have no live hit but cache is within window. Inward-dot gate lowered 0.2 -> 0.1; `abs(along_dot) < 0.15` rejection removed; camera-forward fallback added for run-direction when velocity along-wall is unclear. D-016 angle gate preserved.
+- Fix 3 (launch determinism): WALL_JUMP_OFF_KICK = 8.0 introduced (WALL_JUMP_OFF_NORMAL_PUSH omitted — abandoned in 2.2 before landing). WALL_JUMP_RESTICK_LOCKOUT = 0.15s with `_time_since_left_wall` tracker. Wall jump preserves full along-wall horizontal momentum; only `velocity.y = WALL_JUMP_OFF_KICK` applied. `_was_grounded_since_wall_run` now explicitly set to false in `_set_state(State.WALL_RUN)`. Coyote cache and `_time_since_left_wall` cleared on GROUND transition.
+- No scene changes. No new branches.
