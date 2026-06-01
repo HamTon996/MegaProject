@@ -1,6 +1,6 @@
 # MOMENTUM — Product Spec
 
-Last updated: 2026-05-22
+Last updated: 2026-05-29
 
 ## Vision
 
@@ -21,12 +21,12 @@ To be decided. Likely paid indie release (Steam) if v1 proves out. Out of scope 
 | Feature | Status | User value | Notes |
 |---|---|---|---|
 | Third-person character controller | shipped (Sprint 1) | Foundation for everything | Centered camera (D-010), capsule placeholder |
-| Wall-run | planned (Sprint 2) | Vertical traversal + flank angles | Stamina-gated, directional |
+| Wall-run | shipped (Sprint 2) | Vertical traversal + flank angles | Momentum+timer hybrid per D-018; auto-stick per D-016; forgiving detection per D-020 |
 | Wall-bounce | planned (Sprint 3) | Redirect momentum, break sightlines | Preserves speed, changes vector |
 | Gunplay (1 weapon) | planned (Sprint 5) | Primary damage tool | Shootable mid-wall-run |
 | Melee (1 attack) | planned (Sprint 6) | Close-range finisher | Chains from wall-bounce |
 | 1 enemy archetype | planned (Sprint 7) | Combat target | Shoots back, must be flankable |
-| 1 arena | planned (Sprint 4) | Testbed for the 4-verb loop | Designed around walls/verticality |
+| 1 arena | planned (Sprint 4) | Testbed for the 4-verb loop | Designed around walls/verticality. Note: a gray-box test corridor (Floor, WallLeft, WallRight, LaunchPad) exists in main.tscn from Sprint 2 — Sprint 4 replaces it with the designed arena |
 | Player damage + death + restart | planned (Sprint 8) | Stakes | Quick restart loop |
 
 ## Out of scope for v1 (deferred to v2+)
@@ -75,18 +75,18 @@ None for v1 (offline, single-player, no data collection).
 ## Known bugs / technical debt
 
 - `project.godot` has both `run/main_scene` and `config/run/main_scene` keys set. Duplicate but not currently breaking. Clean up in a future tuning sprint.
-- No `SpringArm3D` on the camera — clips through geometry. Acceptable on the empty floor; must be addressed before Sprint 2 wall-run work (clipping into walls is bad UX).
 - `player_controller.gd` mixes `Input.is_physical_key_pressed` (for WASD) with `Input.is_key_pressed` (for Shift). Inconsistent; pick one in a future cleanup.
 
 ## Resolved bugs
 
+- 2026-05-29: Camera-clip bug resolved in Sprint 2 (commit `96b3d8d`). Added SpringArm3D between PitchPivot and Camera3D, with the player CharacterBody3D RID excluded from spring-arm collision. See D-015.
 - 2026-05-21: Sprint 0 headless launch failed with "no main scene defined" — missing `run/main_scene` key in `project.godot`. Fixed in commit `7a9be06` when CEO opened project in Godot editor; editor wrote the canonical key. (See D-014 for the lesson recorded.)
 - 2026-05-21: Sprint 1 UID collision in `.tscn` files caused Godot to fail to resolve main scene. Fixed in commit `f770832` by removing hand-written UIDs and gitignoring `*.uid` so Godot assigns them on import.
 
 ## Launch plan
 
-- **Current phase:** Sprint 1 shipped (with caveats); Sprint 1.5 cleanup in progress; Sprint 2 (wall-run) pending.
-- **Next milestone after Sprint 1.5:** Sprint 2 — Wall-run system (detection, attach, stamina, exit).
+- **Current phase:** Sprints 0, 1, 1.5, and 2 shipped. Sprint 2.5 (documentation catch-up) in progress. Sprint 3 (wall-bounce) is the next feature sprint.
+- **Next milestone after Sprint 2.5:** Sprint 3 — Wall-bounce (Space-triggered momentum-preserving lateral redirect from walls). Plan Only first.
 - **Decision gate:** After Sprint 3 (wall-bounce complete), explicit pause to evaluate whether movement feels good without combat. If no, project halts for re-tuning before any combat work.
 - **Launch definition for v1:** A single arena where a player can chain all four verbs against one enemy and kill it without the game breaking. Internal-only. No public release.
 
@@ -104,3 +104,10 @@ None for v1 (offline, single-player, no data collection).
 - D-012: Physics — Jolt Physics (adopted post-hoc from pre-existing repo)
 - D-013: Repo name `MegaProject` vs project name `MOMENTUM` — accept the mismatch for now
 - D-014: Workflow reset — Option A, every sprint through Senior Engineer
+- D-015 (closed Sprint 2): SpringArm3D adopted as camera-clip solution.
+- D-016 (closed Sprint 2): Wall-run input model — auto-stick on contact with angle gate.
+- D-017 (pending Sprint 3): Wall-bounce input model — dedicated button vs jump-while-wall-running.
+- D-018 (Sprint 2): Wall-run duration — momentum+timer hybrid.
+- D-019 (Sprint 2): Sprint gating — deny sprint when moving sideways or backward relative to camera.
+- D-020 (Sprint 2): Wall-run detection — forgiving model (1.0m rays, 100ms coyote, camera-fallback direction).
+- D-021 (Sprint 2, PROVISIONAL — will be superseded in Sprint 3): Wall jump-off — along-wall momentum preservation + strong vertical kick + restick lockout.
