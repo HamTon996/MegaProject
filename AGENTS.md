@@ -20,7 +20,7 @@ Before any sprint that creates, modifies, or deletes files, the agent must paste
 PRE-SPRINT ACKNOWLEDGEMENT
 ==========================
 - I have read AGENTS.md in full this session.
-- I have read project-memory/spec.md, unified-roadmap.md, and decisions-log.md.
+- I have read project-memory/spec.md, unified-roadmap.md, decisions-log.md, working-rules.md, codebase-snapshot.md, and session-context.md.
 - I confirm none of those files contain placeholder text like [PROJECT NAME] or [DATE]. If they do, I will STOP and tell the CEO.
 - I will work only on the feature branch named by the Senior Engineer's prompt.
 - I will NOT push to remote unless the prompt explicitly says "push".
@@ -87,7 +87,10 @@ C:\Projects\momentum
 ├── project-memory/         # Persistent design docs (DO NOT MODIFY without explicit instruction)
 │   ├── spec.md
 │   ├── unified-roadmap.md
-│   └── decisions-log.md
+│   ├── decisions-log.md
+│   ├── working-rules.md
+│   ├── codebase-snapshot.md
+│   └── session-context.md
 ├── reports/                # End-of-sprint reports (append-only)
 │   ├── sprint-0.md
 │   ├── sprint-1.md

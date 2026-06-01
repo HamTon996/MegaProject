@@ -1,6 +1,6 @@
 # MOMENTUM — Decisions Log
 
-Last updated: 2026-05-22
+Last updated: 2026-05-29
 
 Append-only. Do not rewrite old decisions. If a decision changes, add a new `REOPENING:` entry.
 
@@ -101,6 +101,191 @@ Append-only. Do not rewrite old decisions. If a decision changes, add a new `REO
 - Trade-offs accepted: Slower iteration. Each sprint requires 2–3 chat handoffs minimum.
 - Affected files/surfaces: `AGENTS.md`, `working-rules.md`, every future sprint prompt.
 
+### D-015 — Camera clip solution: SpringArm3D adopted
+
+- Date: 2026-05-29 (resolved during Sprint 2 build, commit `96b3d8d`)
+- Decision: Add SpringArm3D between PitchPivot and Camera3D in
+  the player rig. The player's CharacterBody3D RID is excluded
+  from spring arm collision in `player_camera.gd` `_ready()`.
+  Collision mask set to layer 1. Camera pulls in toward the
+  pivot when a wall is between pivot and camera; extends to
+  full length when clearance returns.
+- Why: Sprint 2 added vertical walls the camera would clip
+  through. SpringArm3D is the correct Godot tool for this:
+  single node, no custom raycasting, handles smooth
+  inward/outward transitions automatically. The prior D-010
+  deferral assumed no walls in the test scene — that assumption
+  no longer holds from Sprint 2 onward.
+- Alternatives considered: Manual distance clamping via raycast
+  in GDScript; dynamic spring_length setter; keep clipping and
+  defer to Sprint 9 polish.
+- Trade-offs accepted: SpringArm3D can abruptly pull camera in
+  during fast lateral wall approaches. Acceptable at gray-box
+  quality. If camera feel becomes a complaint during Sprint 3
+  playtesting, revisit spring length curve.
+- Supersedes: D-010 trade-off note "SpringArm3D must be added
+  during Sprint 2 prep" — fulfilled.
+- Affected files: `scenes/player.tscn` (SpringArm3D node
+  inserted), `scripts/player_camera.gd` (player exclusion and
+  collision mask).
+
+### D-016 — Wall-run input model: auto-stick on contact with angle gate
+
+- Date: 2026-05-29 (resolved during Sprint 2 build, refined in
+  Sprint 2 feel pass)
+- Decision: Auto-stick on contact. Wall-run initiates
+  automatically when: (a) player is airborne, (b) horizontal
+  speed ≥ `WALL_MIN_SPEED` (3.0 m/s), (c) a side raycast detects
+  a vertical wall surface, (d) velocity points into the wall
+  with inward-dot ≥ 0.1, (e) `WALL_RUN_REATTACH_DELAY` (0.1s)
+  has elapsed since leaving the floor, and (f)
+  `WALL_JUMP_RESTICK_LOCKOUT` (0.15s) has elapsed since the last
+  wall jump-off. No key press required to initiate. The player
+  commits by approaching the wall at speed while airborne.
+- Why: Auto-stick removes the timing penalty for wall-run
+  initiation — the player's only commitment is the approach
+  angle and speed. Hold-to-stick would require dedicated finger
+  gymnastics incompatible with mouse+keyboard (D-005). The
+  angle gate preserves intentionality: walking into a wall on
+  the ground does nothing; a direct head-on approach from a
+  flat run triggers the coyote/camera-fallback path (D-020).
+- Alternatives considered: Dedicated wall-run key;
+  hold-to-stick (proximity + key hold); auto-stick with no
+  angle gate (accidental sticking on any wall contact).
+- Trade-offs accepted: Accidental wall-run is possible if the
+  player runs into a wall while airborne at speed. Acceptable
+  at gray-box quality. Angle gate mitigates worst cases.
+- Affected files: `scripts/player_controller.gd`
+  (`_check_wall_run_initiation()`).
+
+### D-018 — Wall-run duration model: momentum+timer hybrid
+
+- Date: 2026-05-29 (resolved during Sprint 2 friction tuning,
+  post-CEO playtest)
+- Decision: Wall-run duration is governed by both a hard timer
+  cap (`WALL_RUN_MAX_TIME` = 2.5s) and a momentum bleed gate
+  (`WALL_FRICTION` = 2.2 m/s²; exit when horizontal speed <
+  `WALL_EXIT_SPEED` = 2.0 m/s). Whichever condition fires first
+  ends the wall run. At 2.2 m/s² constant deceleration
+  (confirmed via `move_toward` in `_physics_wall_run()`): a
+  sprint-entry (~9 m/s) bleeds to exit speed in ~3.2s, so the
+  timer fires first at 2.5s; a walk-entry (~5 m/s) bleeds to
+  exit in ~1.4s, so momentum fires first. Both halves are
+  observable on the same geometry with different approach
+  speeds.
+- Why: Initial `WALL_FRICTION` of 3.5 m/s² caused the momentum
+  gate to dominate at all speeds, making the 2.5s timer
+  effectively invisible — contradicting the original "hybrid"
+  design intent. CEO playtest confirmed 2.2 makes both exit
+  paths observable. The design distinguishes committed
+  sprinters (timer-limited) from cautious walkers
+  (momentum-limited), which feels purposeful rather than
+  arbitrary.
+- Alternatives considered: Timer only (predictable but no
+  speed scaling); friction only (no hard ceiling); higher
+  friction (timer invisible at all speeds).
+- Trade-offs accepted: `WALL_FRICTION` = 2.2 is the current
+  tuned value but is not final. Sprint 9 feel pass may re-tune.
+  This decision locks the hybrid pattern (both gates active),
+  not the exact constant. Any constant change must remain
+  hybrid — neither gate can be made ineffective.
+- Note on labeling: some Sprint 2 commit messages and code
+  comments cite "D-017" as shorthand for this hybrid decision.
+  That was a labeling error during Sprint 2. The formal
+  hybrid-timer decision is D-018. Code comments updated in
+  Sprint 2.5. Commit messages are immutable.
+- Affected files: `scripts/player_controller.gd`
+  (`WALL_FRICTION`, `WALL_RUN_MAX_TIME`, `WALL_EXIT_SPEED`).
+
+### D-019 — Sprint gating: deny sprint when moving sideways or backward
+
+- Date: 2026-05-29 (resolved during Sprint 2 feel pass)
+- Decision: Sprint (Shift key) is denied when the player's
+  camera-relative input direction has no forward component
+  (`input_direction.normalized().dot(cam_forward) ≤ 0.0`).
+  Implemented via `_selected_speed(input_direction)` helper
+  called in both `_physics_ground()` and `_physics_air()`.
+  Pure sideways input and backward input always yield
+  `WALK_SPEED` regardless of Shift.
+- Why: Default Sprint 1 behavior allowed `RUN_SPEED` in all
+  directions. Backpedaling at 9 m/s felt unrealistic and broke
+  wall-run approach lines (a player could sprint into a wall
+  running backwards). Sprint as a forward-only power reinforces
+  the "controlled aggression" design goal (D-004) — committing
+  to an approach direction matters.
+- Alternatives considered: No change (Sprint 1 default);
+  separate `STRAFE_SPEED` constant; per-axis max speed cap.
+- Trade-offs accepted: Sprint+strafe is now walk-speed strafe.
+  When gunplay arrives (Sprint 5), strafing during a firefight
+  will feel slow. Revisit in Sprint 9 feel pass — a moderate
+  `STRAFE_SPEED` between walk and run may be the right answer,
+  but not before we have a firefight to test against.
+- Affected files: `scripts/player_controller.gd`
+  (`_selected_speed()`, `_physics_ground()`, `_physics_air()`).
+
+### D-020 — Wall-run detection: forgiving model
+
+- Date: 2026-05-29 (resolved during Sprint 2 feel pass)
+- Decision: Wall-run detection uses three layers of
+  forgiveness. (1) `WALL_RAY_LENGTH` = 1.0 m (up from 0.65 m) —
+  rays detect the wall earlier, reducing the timing window
+  required for a valid approach. (2) `WALL_COYOTE_TIME` = 0.10 s
+  — if the ray loses wall contact, the last-seen wall normal is
+  cached; initiation can still trigger within 100 ms of the ray
+  losing the wall. (3) Camera-forward fallback — when velocity
+  along-wall component is ambiguous (|along_dot_vel| ≤ 0.3),
+  the camera's facing direction determines which way the player
+  runs along the wall. Same camera orientation always produces
+  the same result on a head-on approach, making it deterministic
+  and learnable.
+- Why: Sprint 2 CEO playtest found wall-run failed to initiate
+  on approaches that felt obviously valid. Short rays required
+  near-exact timing. The old `abs(along_dot) < 0.15` rejection
+  gate blocked head-on approaches that players intuitively
+  expected to work. The camera fallback solves head-on
+  determinism without requiring the player to angle precisely.
+- D-016 preserved: The inward-dot gate (≥ 0.1) and
+  `WALL_MIN_SPEED` (3.0 m/s) are unaffected. Coyote forgiveness
+  applies only to the timing of ray-wall contact, not to the
+  angle of approach.
+- Affected files: `scripts/player_controller.gd`
+  (`WALL_RAY_LENGTH`, `WALL_COYOTE_TIME`;
+  `_update_coyote_wall_cache()`, `_check_wall_run_initiation()`).
+
+### D-021 — Wall jump-off: along-wall momentum + vertical kick + restick lockout [PROVISIONAL — WILL BE SUPERSEDED IN SPRINT 3]
+
+- Date: 2026-05-29 (resolved during Sprint 2 feel pass)
+- Status: **PROVISIONAL. Will be superseded in Sprint 3.**
+- Decision: When the player presses Space while wall-running,
+  the jump-off applies: (a) `WALL_JUMP_OFF_KICK` = 8.0 m/s
+  upward (vs `JUMP_VELOCITY` = 6.0 for a floor jump);
+  (b) horizontal velocity is NOT redirected — it is already
+  directed along the wall from on-wall physics, so it is
+  preserved as-is; (c) a 0.15 s restick lockout
+  (`WALL_JUMP_RESTICK_LOCKOUT`) prevents immediately
+  re-attaching to the same wall before the trajectory clears
+  it. No push along the wall normal is applied.
+- Why: Preserving along-wall horizontal momentum makes the
+  launch direction predictable: the player's velocity after
+  jump-off is "along the wall, upward." The stronger upward
+  kick (8.0 vs 6.0) rewards the wall-run with more height than
+  a floor jump. The restick lockout replaces the earlier
+  normal-push approach, which introduced a speed-dependent
+  angle variance (faster approach = larger normal push =
+  different trajectory). Time-based lockout is frame-independent
+  and constant.
+- Why PROVISIONAL: The CEO has already locked the Sprint 3
+  design: Space-while-wall-running will fire wall-bounce — a
+  lateral momentum redirect — replacing `WALL_JUMP_OFF_KICK`
+  entirely. This entry remains in the log as the historical
+  record of Sprint 2's intermediate state. The Sprint 3
+  wall-bounce decision (will be a new D-###) supersedes this
+  entry at merge time. Do not tune `WALL_JUMP_OFF_KICK` or
+  `WALL_JUMP_RESTICK_LOCKOUT` outside of Sprint 3 work.
+- Affected files: `scripts/player_controller.gd`
+  (`WALL_JUMP_OFF_KICK`, `WALL_JUMP_RESTICK_LOCKOUT`,
+  `_physics_wall_run()` jump-off block).
+
 ## Workflow history — Sprints 0–1 retrospective (recorded 2026-05-22)
 
 This section records what actually happened in the first two sprints, including violations of the workflow we'd agreed on. Recorded honestly so future decisions are informed by ground truth, not narrative.
@@ -111,6 +296,37 @@ This section records what actually happened in the first two sprints, including 
 - **2026-05-21 (Sprint 1):** CEO prompted Claude Code with only "proceed to Sprint 1". No Senior Engineer plan was drafted. No prompt was crafted by Senior Engineer. Claude Code derived scope from `unified-roadmap.md` (which at this point contained placeholder text — Claude Code must have relied on session memory from Sprint 0). Sprint 1 added scope beyond what was specced (WorldEnvironment, procedural sky, floor) without Plan Only review. CEO authorized `merge it + push it` in chat with Claude Code (not with Senior Engineer). Claude Code merged and pushed.
 - **2026-05-21 (post-Sprint-1 hotfix):** CEO opened project in Godot editor. Editor wrote canonical `run/main_scene` key. Files were committed and pushed as `7a9be06` after CEO said `push it`.
 - **2026-05-22 (forensic + reset):** Senior Engineer requested a read-only forensic snapshot. CEO ran it. Forensic revealed the placeholder overwrite, the unauthorized Sprint 0 push, and the unverified Sprint 0 success criterion. CEO chose Option A workflow reset. Sprint 1.5 cleanup planned.
+
+### REOPENING: Sprint 1.5 canon-completeness declaration
+
+- Date: 2026-05-29
+- What changed: Sprint 1.5 declared project-memory cleanup
+  complete and merged to `main` on 2026-05-25 (commit
+  `baa8cc7`). The sprint report and AGENTS.md were updated to
+  reflect that `spec.md`, `unified-roadmap.md`, and
+  `decisions-log.md` contain real content. This was true.
+  However, three additional files — `working-rules.md`,
+  `codebase-snapshot.md`, `session-context.md` — existed on
+  disk as untracked, all-placeholder files (last-modified
+  2026-05-14). They were never committed, never mentioned in
+  the Sprint 1.5 report, and never listed in AGENTS.md's
+  Repo Layout or Pre-Sprint Acknowledgement block. The
+  definition of "project-memory is clean" was applied to only
+  three of the six files in the directory.
+- Lesson: "Project-memory is clean" must mean all files in
+  `project-memory/` are (a) committed and tracked in git,
+  (b) contain no bracketed placeholder text, and (c) are
+  listed in AGENTS.md as required reading. A partial-canon
+  state is a silent failure mode — it is the same pattern that
+  allowed placeholder overwrite in Sprint 0 (unnoticed because
+  the file looked plausible). Three committed-but-stale files
+  are better than three untracked-but-placeholder files; the
+  latter are invisible to a fresh clone.
+- Fix: Sprint 2.5 fills all three orphan files with real content,
+  commits them, and updates AGENTS.md Pre-Sprint Acknowledgement
+  to require reading all six. After Sprint 2.5 merges, the new
+  minimum bar is: all six files real-content, all six tracked
+  in git, all six in the AGENTS.md read list.
 
 ## Lessons learned
 
@@ -132,9 +348,13 @@ This section records what actually happened in the first two sprints, including 
 
 ## Decisions pending
 
-- D-015: SpringArm3D vs. alternative camera-clip solution for Sprint 2 (planned in Sprint 2 Plan Only).
-- D-016: Wall-run input model — hold-to-stick vs. auto-stick on contact (Sprint 2).
 - D-017: Wall-bounce input — dedicated button vs. jump-while-wall-running (Sprint 3).
+  Note: some Sprint 2 commits and code comments cite "D-017" as
+  loose shorthand for the hybrid-timer requirement. That is a
+  labeling error from Sprint 2. The formal hybrid-timer decision
+  is D-018 (added 2026-05-29). D-017 in this log refers solely
+  to the wall-bounce input question and will be answered in
+  Sprint 3.
 
 ## Reopen protocol
 
