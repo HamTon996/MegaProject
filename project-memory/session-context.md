@@ -15,13 +15,24 @@ report wins and this file is the bug.
 - Remote: `github.com/HamTon996/MegaProject`
 - Base branch: `main`
 - Current branch: `main`
-- Top commit: `6f4944e`
+- Top commit: `c64586d` (Sprint 2.5 merged)
 - Push status: pushed to `origin/main`
-- Working tree: clean (post Sprint 2 merge)
-- Current milestone: Sprint 2 shipped. Sprint 2.5 (doc catch-up)
-  in progress.
+- Working tree: clean (post Sprint 2.5 merge)
+- Current milestone: Sprint 2.5 shipped. Sprint 3 (wall-bounce) Plan Only is next.
 
 ## Latest sprint shipped
+
+**Sprint 2.5 — Documentation catch-up.** Branch `sprint-2.5-doc-catchup`,
+merged to `main` as `c64586d` on 2026-06-02. Adopted three orphan
+project-memory files (`working-rules.md`, `codebase-snapshot.md`,
+`session-context.md`) into canon. Refreshed `spec.md`,
+`unified-roadmap.md`, `decisions-log.md` to current reality. Closed
+D-015 and D-016. Added D-018 (hybrid timer), D-019 (sprint gating),
+D-020 (forgiving detection), D-021 PROVISIONAL (wall jump-off — will
+be superseded in Sprint 3). Added REOPENING entry for Sprint 1.5
+canon-completeness gap. Expanded AGENTS.md Pre-Sprint Acknowledgement
+to require all six project-memory files. Fixed D-017 → D-018 label
+in `player_controller.gd` comment (comment-only change).
 
 **Sprint 2 — Wall-run system.** Merged to `main` as `6f4944e` on
 2026-05-29. Four feature commits plus one merge commit:
@@ -93,14 +104,14 @@ Playtest: open `project.godot` in Godot 4.6.2 editor, press F5.
 
 Newest first:
 
+- `reports/sprint-2.5.md` — Documentation catch-up, 8,071 bytes,
+  dated 2026-06-02.
 - `reports/sprint-2.md` — Wall-run system, 11,432 bytes,
   dated 2026-05-29.
 - `reports/sprint-1.5.md` — Cleanup, 5,178 bytes, dated 2026-05-25.
 - `reports/sprint-1.md` — Character controller, 3,905 bytes,
   dated 2026-05-21.
 - `reports/sprint-0.md` — Bootstrap, 4,951 bytes, dated 2026-05-21.
-
-`reports/sprint-2.5.md` will be added when this sprint ships.
 
 ## Backlog deferred from earlier sprints
 
@@ -109,28 +120,10 @@ Newest first:
   `project.godot` is being edited for another reason.
 - `Input.is_key_pressed` vs `is_physical_key_pressed` inconsistency
   in `player_controller.gd` — low priority, pre-existing.
-- Reconcile `D-017` references in code (currently citing the
-  wall-bounce pending entry where they mean the hybrid timer).
-  Scheduled for Sprint 2.5.
 
 ## State drift notes
 
-After Sprint 2.5 merges, this section should read "None known."
-Until then, the known drift items being resolved by this sprint:
-
-- `working-rules.md`, `codebase-snapshot.md`, and this file were
-  untracked placeholders until Sprint 2.5. Sprint 1.5 cleanup
-  closed the placeholder gap on three canon files but did not
-  catch these three. See `decisions-log.md` REOPENING entry
-  dated 2026-05-29.
-- `spec.md`, `unified-roadmap.md`, `decisions-log.md` were dated
-  2026-05-22 and stale by Sprint 1.5 + Sprint 2 worth of work.
-  Refreshed in Sprint 2.5.
-- `AGENTS.md` Repo Layout listed three project-memory files; the
-  Pre-Sprint Acknowledgement block referenced only three. Both
-  expanded to six in Sprint 2.5.
-- Some Sprint 2 commit messages and code comments cite "D-017"
-  as shorthand for the hybrid-timer decision. The formal
-  hybrid-timer entry is D-018; D-017 in `decisions-log.md` is
-  the wall-bounce input question. Code comments fixed in
-  Sprint 2.5; commit history is immutable and left as-is.
+None known as of 2026-06-02. Sprint 2.5 closed the canon-completeness
+gap, refreshed all stale files, expanded AGENTS.md to require all
+six project-memory files, and fixed the D-017 label collision in
+code comments.
